@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>ToDo App</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.task_description.label }}<br>
+            {{ form.task_description(size=64) }}
+        </p>
+        <p>
+            {{ form.due_date.label }}<br>
+            {{ form.due_date() }}
+        </p>
+        <p>
+            {{ form.created_by.label }}<br>
+            {{ form.created_by(size=32) }}
+        </p>
+        <p>
+            {{ form.created_at.label }}<br>
+            {{ form.created_at() }}
+        </p>
+        <p>{{ form.status() }} {{ form.status.label }}</p>
+        <p>{{ form.done() }}</p>
+    </form>
+{% endblock %}
