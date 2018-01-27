@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>ToDo App</h1>
+    <form action= "{{ url_for('dataUpdate') }}" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.task_heading.label }}<br>
+            {{ form.task_heading(size=64) }}
+        </p>
+        <p>
+            {{ form.new_task_description.label }}<br>
+            {{ form.new_task_description(size=64) }}
+        </p>
+        <p>
+            {{ form.new_due_date.label }}<br>
+            {{ form.new_due_date() }}
+        </p>
+        
+        <p>{{ form.new_status() }} {{ form.new_status.label }}</p>
+
+        <p>{{ form.done() }}</p>
+    </form>
+{% endblock %}

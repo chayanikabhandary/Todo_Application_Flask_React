@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>ToDo App</h1>
+    <form action= "{{ url_for('dataPopulate') }}" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.task_heading.label }}<br>
+            {{ form.task_heading(size=64) }}
+        </p>
+        <p>
+            {{ form.task_description.label }}<br>
+            {{ form.task_description(size=1024) }}
+        </p>
+        <p>
+            {{ form.due_date.label }}<br>
+            {{ form.due_date() }}
+        </p>
+        
+        <p>{{ form.status() }} {{ form.status.label }}</p>
+        <p>{{ form.done() }}</p>
+    </form>
+{% endblock %}
