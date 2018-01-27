@@ -2,20 +2,25 @@ from datetime import datetime
 from app import db, login
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import *
+from sqlalchemy.orm import *
 
 class Task(db.Model):
     __tablename__ = 'tasks'
 
     id = db.Column(db.Integer, primary_key=True)
-    task_description = db.Column(db.String(256), index=True)
+    task_heading = db.Column(db.String(64), index=True)
+    task_description = db.Column(db.String(1024), index=True)
     due_date = db.Column(db.DateTime, nullable= True)
-    created_by = db.Column(db.String(128), nullable= False)
+    created_by = db.Column(Integer, ForeignKey('users.id'), nullable= False)
     status = db.Column(db.Boolean)
-    deleted_by = db.Column(db.String(128), nullable= True)
+    deleted_by = db.Column(db.Integer, ForeignKey('users.id'), nullable= True)
     created_at = db.Column(db.DateTime, nullable= True)
     deleted_at = db.Column(db.DateTime, nullable= True)
 
-    def __init__(self, task_description, due_date, created_by, status, deleted_by, created_at, deleted_at):
+    def __init__(self, task_heading, task_description, due_date, created_by, status, deleted_by, created_at, deleted_at):
+        self.task_heading = task_heading
         self.task_description = task_description
         self.due_date = due_date
         self.created_by = created_by
@@ -31,6 +36,7 @@ class Task(db.Model):
 
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
