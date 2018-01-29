@@ -1,6 +1,8 @@
 import React from 'react';
+import axios from 'axios';
+import './css/loginform.css';
 
-class App extends React.Component {
+export default class LoginForm extends React.Component {
    constructor(props) {
       super(props);
       
@@ -11,44 +13,58 @@ class App extends React.Component {
          
       }
       this.updateState = this.updateState.bind(this);
+      this._onChange = this._onChange.bind(this);
+
    };
    updateState(e) {
       this.setState({username: e.target.value});
    }
-   render() {
-      return (
-         <div>
-         	<form method="POST" action= "" >
-            Username: <input type = "text" value = {this.state.username} 
-               onChange = {this.updateState} name = "username" />
-            <br />
-            Password: <input type = "password" value = {this.state.password} 
-               onChange = {this.updateState} name = "password" />
-            <br />
-            Remember me: <input type = "checkbox" value = {this.state.remember_me} 
-               onChange = {this.updateState} name = "status" />
-            <br />
-            
-
-            <input type= "submit" onClick={this._onChange} value = "Done"/>
-
-
-            </form>
-         </div>
-      );
-   }
-
    _onChange(event) {
     axios.post("http://localhost:5000/test",{
         username: this.state.username,
-        password: this.state.password,
-        remember_me: this.state.remember_me
+        email: this.state.email,
+        password: this.state.password
     }).then((response)=> {
        console.log("Data submitted successfully");
     }).catch((error)=> {
-       		console.log("got errr while posting data", error);
-    	});
-	}
+          console.log("got errr while posting data", error);
+      });
+  }
+   render() {
+      return (
+        <div class="container">
+          <div class="row">
+            <div class="form_bg">
+                <form>
+                  <h2 class="text-center">Login Page</h2>
+                  <br/>
+                  <div class="form-group">
+                    <input type="text" class="form-control" id = "username" 
+                    name = "username" value = {this.state.username} 
+                    onChange = {this.updateState} placeholder="Username" />
+                  </div>
+                  <div class="form-group">
+                    <input type="email" class="form-control" id="email"
+                    name="email" value = {this.state.password} 
+                    onChange = {this.updateState} placeholder="Email id" />
+                  </div>
+                  <div class="form-group">
+                    <input type="password" class="form-control" id="password"
+                    name="password" value = {this.state.password} 
+                    onChange = {this.updateState} placeholder="Password" />
+                  </div>
+                  <br/>
+                  <div class="align-center">
+                    <button type="submit" class="btn btn-default" id="login" onClick={this._onChange}>Login</button>
+                  </div>
+                </form>
+            </div>
+          </div>
+        </div>
+      );
+   }
+
+   
 
 }
-export default App;
+//export default App;
