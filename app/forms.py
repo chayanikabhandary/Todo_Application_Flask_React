@@ -3,14 +3,16 @@ from wtforms import StringField, DateTimeField, BooleanField, SubmitField, Passw
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from app.models import User
 
+
 class DataForm(FlaskForm):
-    task_heading = StringField('Task Heading: ', validators = [DataRequired()])
-    task_description = StringField('Task Description: ', validators=[DataRequired()])
-    due_date = DateTimeField('Due Date', validators=[DataRequired()], format= '%Y-%m-%d %H:%M:%S')
+    task_heading = StringField('Task Heading: ', validators=[DataRequired()])
+    task_description = StringField('Task Description: ', 
+        validators=[DataRequired()])
+    due_date = DateTimeField('Due Date', validators=[DataRequired()], 
+        format= '%Y-%m-%d %H:%M:%S')
     status = BooleanField('Status')
-    #created_by = StringField('Created By: ', validators=[DataRequired()])
-    #created_at = DateTimeField('Created At: ', validators=[DataRequired()], format= '%Y-%m-%d %H:%M:%S')
     done = SubmitField('Done')
+
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -40,14 +42,15 @@ class RegistrationForm(FlaskForm):
 
 class UpdateForm(FlaskForm):
     task_heading = StringField('Task Heading: ', validators=[DataRequired()])
-    new_task_description = StringField('New Task Description: ', validators=[DataRequired()])
-    new_due_date = DateTimeField('New Due Date', validators=[DataRequired()], format= '%Y-%m-%d %H:%M:%S')
+    new_task_description = StringField('New Task Description: ', 
+        validators=[DataRequired()])
+    new_due_date = DateTimeField('New Due Date', validators=[DataRequired()], 
+        format= '%Y-%m-%d %H:%M:%S')
     new_status = BooleanField('Status')
     done = SubmitField('Done')
 
+
 class DeleteForm(FlaskForm):
     task_heading = StringField('Task Heading: ', validators=[DataRequired()])
-    #deleted_by = StringField('Created By: ', validators=[DataRequired()])
-    #deleted_at = DateTimeField('Created At: ', validators=[DataRequired()], format= '%Y-%m-%d %H:%M:%S')
     done = SubmitField('Done')
 
