@@ -20,15 +20,19 @@ class Task(db.Model):
     created_at = db.Column(db.DateTime, nullable=True)
     deleted_at = db.Column(db.DateTime, nullable=True)
 
-    def __init__(self, task_heading, task_description, due_date, created_by, status, deleted_by, created_at, deleted_at):
+    def __init__(
+        self, task_heading, task_description,
+        due_date, created_by, status,
+        created_at
+    ):
         self.task_heading = task_heading
         self.task_description = task_description
         self.due_date = due_date
         self.created_by = created_by
         self.status = status
-        self.deleted_by = deleted_by
+        # self.deleted_by = deleted_by
         self.created_at = created_at
-        self.deleted_at = deleted_at
+        # self.deleted_at = deleted_at
 
     def dump_datetime(self, value):
         if value is None:
@@ -37,9 +41,6 @@ class Task(db.Model):
 
     @property
     def serialize(self):
-        exists_deleted_by = False
-        if self.deleted_by:
-            exists_deleted_by = True 
         return{
             'id': self.id,
             'task_heading': self.task_heading,
@@ -47,7 +48,8 @@ class Task(db.Model):
             'due_date': self.dump_datetime(self.due_date),
             'created_by': load_user(self.created_by).username,
             'status': self.status,
-            'deleted_by': load_user(self.deleted_by).username if self.deleted_by else "",
+            'deleted_by':
+            load_user(self.deleted_by).username if self.deleted_by else "",
             'created_at': self.dump_datetime(self.created_at),
             'deleted_at': self.dump_datetime(self.deleted_at)
         }
