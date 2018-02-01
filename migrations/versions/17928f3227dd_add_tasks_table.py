@@ -30,7 +30,8 @@ def upgrade():
             'id', sa.INTEGER(), primary_key=True
         ),
         sa.Column(
-            'task_heading', sa.VARCHAR(length=64), nullable=False, index=True
+            'task_heading', sa.VARCHAR(length=64), nullable=False, index=True,
+            unique=True
         ),
         sa.Column(
             'task_description', sa.TEXT(length=1024), nullable=True
