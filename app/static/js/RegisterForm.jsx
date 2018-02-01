@@ -18,6 +18,10 @@ export default class RegisterForm extends React.Component {
       this._onChange = this._onChange.bind(this);
 
    };
+   commonValidate() {
+    //you could do something here that does general validation for any form field
+    return true;
+  }
    updateStateUsername(e) {
       this.setState({username: e.target.value});
    }
@@ -35,10 +39,11 @@ export default class RegisterForm extends React.Component {
         password: this.state.password
     }).then(function(response){
         console.log(response);
-       console.log("Data submitted successfully");
+        console.log("Data submitted successfully");
        hashHistory.push('/');
     }).catch((error)=> {
-          console.log("got errr while posting data", error);
+          alert(error)
+          
       });
   }
    render() {
@@ -52,7 +57,7 @@ export default class RegisterForm extends React.Component {
                   <div className="form-group">
                     <input type="text" className="form-control" id = "username" 
                     name = "username" value = {this.state.username} 
-                    onChange = {this.updateStateUsername} placeholder="Username" />
+                    onChange = {this.updateStateUsername} validate = {this.commonValidate} placeholder="Username" />
                   </div>
                   <div className="form-group">
                     <input type="email" className="form-control" id="email"

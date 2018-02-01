@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import './css/loginform.css';
+import { hashHistory } from 'react-router';
 
 export default class UpdateForm extends React.Component {
    constructor(props) {
@@ -44,6 +45,7 @@ export default class UpdateForm extends React.Component {
        hashHistory.push('/HomePage');
        
     }).catch((error)=> {
+          alert(error)
           console.log("got errr while posting data", error);
       });
   }
@@ -66,7 +68,7 @@ export default class UpdateForm extends React.Component {
                     onChange = {this.updateStateTaskDescription} placeholder="New Task Description" />
                   </div>
                   <div className="form-group">
-                    <input type="datetime-local" className="form-control" id="new_due_date"
+                    <input type="datetime" className="form-control" id="new_due_date"
                     name="new_due_date" value = {this.state.new_due_date} 
                     onChange = {this.updateStateDueDate} placeholder="New Due Date" />
                   </div>

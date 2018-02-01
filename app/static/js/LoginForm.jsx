@@ -45,6 +45,7 @@ export default class LoginForm extends React.Component {
        console.log("Data submitted successfully");
        hashHistory.push('/HomePage');
     }).catch((error)=> {
+          alert(error)
           console.log("got errr while posting data", error);
       });
   }

@@ -26,6 +26,7 @@ export default class DeleteForm extends React.Component {
        console.log("Data submitted successfully");
        hashHistory.push('/HomePage');
     }).catch((error)=> {
+          alert(error)
           console.log("got errr while posting data", error);
       });
   }
@@ -35,7 +36,7 @@ export default class DeleteForm extends React.Component {
           <div className="row">
             <div className="form_bg">
                 <form>
-                  <h2 className="text-center">Login Page</h2>
+                  <h2 className="text-center">Delete Task</h2>
                   <br/>
                   <div className="form-group">
                     <input type="text" className="form-control" id = "task_heading" 
