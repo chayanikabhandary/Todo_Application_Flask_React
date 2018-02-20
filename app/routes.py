@@ -1,36 +1,27 @@
 from app import app
 from app import db
-from flask import render_template, flash, redirect, url_for, request
-from flask_login import login_user, logout_user, current_user, login_required
-from werkzeug.urls import url_parse
-from app.forms import DataForm, LoginForm, RegistrationForm
+from flask import redirect, url_for, request, jsonify
+from flask_login import login_user, logout_user
+from flask_login import current_user
 from app.models import Task, User
 from datetime import datetime
-from flask.json import jsonify
+from sqlalchemy.exc import IntegrityError
+
 
 @app.route('/')
 @app.route('/home')
 def home():
-    db.drop_all()
-    db.create_all()
-    return render_template('base.html')
+    return redirect(url_for('static', filename='index.html'))
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('dataentry'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('login'))
-        login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('dataentry')
-        return redirect(next_page)
-    return render_template('login.html', title='Sign In', form=form)
+    user = User.query.filter_by(username=request.json['username']).first()
+    if user is None or not user.check_password(request.json['password']):
+        return jsonify({'err': "Invalid username or password"}), 500
+    else:
+        login_user(user, remember=request.json['remember_me'])
+        return jsonify({'success': "Successfully logged in"})
 
 
 @app.route('/logout')
@@ -41,45 +32,89 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('dataentry'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    if request.method == 'POST':
+        try:
+            user = User(username=request.json['username'],
+                        email=request.json['email'])
+            user.set_password(request.json['password'])
+            db.session.add(user)
+            db.session.commit()
+            return jsonify({'success': "User registered"}), 200
+        except IntegrityError as e:
+            print "Error" + repr(e)
+            return jsonify({'err': "User already exists"}), 500
 
 
-@app.route('/dataentry', methods=['GET','POST'])
-def dataentry():
-    form= DataForm()
-    if form.validate_on_submit():
-    	return redirect(url_for('/dataPopulate',form= form))
-    return render_template('dataentry.html',title='Data Entry',form=form)
-
-@app.route('/dataPopulate', methods=['GET','POST'])
+@app.route('/dataPopulate', methods=['POST'])
 def dataPopulate():
-	if request.method == 'POST':
-		form = DataForm(request.form)
-		newTask = Task(task_description = form.task_description.data,
-                        due_date = datetime.now(),
-                        created_by = form.created_by.data,
-                        status = bool(form.status.data),
-                        deleted_by = None,
-                        deleted_at = datetime.now(),
-                        created_at = datetime.now())
-		db.drop_all()
-		db.create_all()
+    try:
+        newTask = Task(task_heading=request.json['task_heading'],
+                       task_description=request.json['task_description'],
+                       due_date=datetime.strptime(request.json['due_date'],
+                                                  '%Y-%m-%d %H:%M:%S'),
+                       created_by=current_user.id,
+                       status=bool(request.json['status']),
+                       created_at=datetime.now())
         db.session.add(newTask)
         db.session.commit()
-        allTasks = Task.query.all()
-        print(allTasks)
-        return Task.query.get(1)
-	return 'OK'
+        return jsonify({'success': "Task created"}), 200
+    except IntegrityError as e:
+            print "Error" + repr(e)
+            return jsonify({'err': "Task heading already exists"}), 500
+
+    return jsonify({'success': "Task created"}), 200
+
+
+@app.route('/dataDisplay', methods=['GET', 'POST'])
+def dataDisplay():
+    allTasks = Task.query.filter_by(created_by=current_user.id)
+    return jsonify({
+                   'json_list': [task.serialize for task in allTasks]}), 200
+
+
+@app.route('/dataUpdate', methods=['POST'])
+def dataUpdate():
+    exists = db.session.query(Task.id).filter_by(
+        task_heading=request.json['task_heading']).scalar() is not None
+    task_creator = Task.query.filter_by(task_heading=request.json[
+                                        'task_heading']
+                                        ).first()
+    if exists:
+        if task_creator.created_by != current_user.id:
+            return jsonify({'err': "Update not authenticated"}), 500
+        Task.query.filter_by(
+            task_heading=request.json['task_heading']
+        ).update(
+            dict(
+                task_description=request.json['new_task_description'],
+                status=bool(request.json['new_status']),
+                due_date=datetime.strptime(request.json['new_due_date'],
+                                           '%Y-%m-%d %H:%M:%S')
+            )
+        )
+        db.session.commit()
+        return jsonify({'success': "Task updated"}), 200
+    return jsonify({'err': "Task cannot be updated"}), 500
+
+
+@app.route('/dataDelete', methods=['POST'])
+def dataDelete():
+    exists = db.session.query(Task.id).filter_by(
+        task_heading=request.json['task_heading']).scalar() is not None
+    if exists:
+        new_task = Task.query.filter_by(
+            task_heading=request.json['task_heading']).first()
+        if new_task.created_by != current_user.id:
+            return jsonify({'err': "Delete not authenticated"}), 500
+        if new_task.deleted_by:
+            return jsonify({'err': "Task already deleted"}), 500
+        else:
+            new_task.deleted_by = current_user.id
+            new_task.deleted_at = datetime.now()
+            db.session.commit()
+        return jsonify({'success': "Delete deleted"}), 200
+    return jsonify({'err': "Task cannot be deleted"}), 500
+
 
 if __name__ == '__main__':
     app.debug = True

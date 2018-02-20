@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>ToDo App</h1>
+    <form action= "{{ url_for('dataDelete') }}" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.task_heading.label }}<br>
+            {{ form.task_heading(size=64) }}
+        </p>
+        
+        <p>{{ form.done() }}</p>
+    </form>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>ToDo App</h1>
+
+		{% if tasks %}
+    		{% for temp in tasks %}
+    				{% if temp.deleted_by == None %}
+                        <p>{{ temp.id }}</p>
+        				<p>{{ temp.task_heading }}</p>
+        				<p>{{ temp.task_description }}</p>
+        				<p> {{ temp.status }}</p>
+       				{% endif %}
+    		{% endfor %}
+		{% endif %}
+{% endblock %}
